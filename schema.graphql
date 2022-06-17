@@ -1,0 +1,318 @@
+type ComponentsRegistry @entity {
+    # ComponentsRegistry contract address.
+    id: ID!
+
+    txCount: Int!
+    comparatorCount: Int!
+    indicatorCount: Int!
+    comparatorInstanceCount: Int!
+    indicatorInstanceCount: Int!
+    numberOfIndicatorSales: Int!
+    numberOfComparatorSales: Int!
+    numberOfIndicatorInstanceSales: Int!
+    numberOfComparatorInstanceSales: Int!
+
+    # Measured in TGEN.
+    totalVolume: BigInt!
+    indicatorVolume: BigInt!
+    comparatorVolume: BigInt!
+    indicatorInstanceVolume: BigInt!
+    comparatorInstanceVolume: BigInt!    
+}
+
+type TradingBotRegistry @entity {
+    # TradingBotRegistry contract address.
+    id: ID!
+
+    numberOfTradingBotNFTs: Int!
+    numberOfPublishedTradingBots: Int!
+
+    # Measured in TGEN.
+    mintFee: BigInt!
+    collectedFees: BigInt!   
+}
+
+type Indicator @entity {
+    # Component ID in ComponentsRegistry.
+    id: ID!
+
+    # Fetched from contract.
+    name: String!
+
+    # Timestamp at which the indicator was created.
+    publishedOn: BigInt!
+
+    # User who developed this indicator.
+    # Initially the indicator owner.
+    developer: User!
+
+    # Address of this indicator's ComponentInstances contract.
+    instancesAddress: String!
+
+    # Address of the indicator contract.
+    contractAddress: String!
+
+    # User who currently owns the indicator NFT.
+    componentOwner: User!
+
+    # Measured in TGEN.
+    fee: BigInt!
+    collectedFees: BigInt!
+
+    instances: [IndicatorInstance]! @derivedFrom(field: "indicator")
+}
+
+type Comparator @entity {
+    # Component ID in ComponentsRegistry.
+    id: ID!
+
+    # Fetched from contract.
+    name: String!
+
+    # Timestamp at which the comparator was created.
+    publishedOn: BigInt!
+
+    # User who developed this comparator.
+    # Initially the indicator owner.
+    developer: User!
+
+    # Address of this comparator's ComponentInstances contract.
+    instancesAddress: String!
+
+    # Address of the comparator contract.
+    contractAddress: String!
+
+    # User who currently owns the comparator NFT.
+    componentOwner: User!
+
+    # Measured in TGEN.
+    fee: BigInt!
+    collectedFees: BigInt!
+
+    instances: [ComparatorInstance]! @derivedFrom(field: "comparator")
+}
+
+type IndicatorInstance @entity {
+    # Component ID + "-" + instance ID.
+    id: ID!
+
+    # Timestamp at which the indicator instance was created.
+    createdOn: BigInt!
+
+    # ID in the indicator's ComponentInstances contract.
+    instanceID: BigInt!
+
+    componentID: BigInt!
+
+    indicator: Indicator!
+
+    # Measured in TGEN.
+    # Price user pays for integrating this indicator instance in a comparator instance.
+    price: BigInt!
+
+    isDefault: Boolean!
+
+    # User who currently owns the indicator instance NFT.
+    instanceOwner: User!
+
+    # User who developed this indicator instance.
+    # Initially the indicator instance owner.
+    developer: User!
+
+    # Asset symbol.
+    # Ex) BTC.
+    asset: String!
+
+    # Timeframe (in minutes) of the asset's data feed.
+    assetTimeframe: BigInt!
+
+    # Timeframe (in minutes) of the indicator instance.
+    # Keeps track of how frequently the indicator instance is expected to be updated.
+    indicatorTimeframe: BigInt!
+
+    # Optional params.
+    # Ex) The EMA indicator might have [20] as params to define 20-period moving average.
+    params: [BigInt]!
+
+    # Measured in TGEN.
+    collectedFees: BigInt!
+
+    # Comparator instances that use this indicator instance.
+    integrations1: [ComparatorInstance]! @derivedFrom(field: "indicator1")
+    integrations2: [ComparatorInstance]! @derivedFrom(field: "indicator2")
+}
+
+type ComparatorInstance @entity {
+    # Component ID + "-" + instance ID.
+    id: ID!
+
+    # Timestamp at which the comparator instance was created.
+    createdOn: BigInt!
+
+    # ID in the comparator's ComponentInstances contract.
+    instanceID: BigInt!
+
+    componentID: BigInt!
+
+    comparator: Comparator!
+
+    indicator1: IndicatorInstance!
+    indicator2: IndicatorInstance!
+
+    # Measured in TGEN.
+    # Price user pays for integrating this comparator instance in in a trading bot.
+    price: BigInt!
+
+    isDefault: Boolean!
+
+    # User who currently owns the comparator instance NFT.
+    instanceOwner: User!
+
+    # User who developed this comparator instance.
+    # Initially the comparator instance owner.
+    developer: User!
+
+    # Timeframe (in minutes) of the comparator instance.
+    # Keeps track of how frequently the comparator instance is expected to be updated.
+    # Fetched from contract.
+    comparatorTimeframe: BigInt!
+
+    # Measured in TGEN.
+    collectedFees: BigInt!
+}
+
+type PurchaseComponentInstance @entity {
+    # Transaction hash.
+    id: ID!
+
+    componentID: BigInt!
+    instanceID: BigInt!
+
+    buyer: String!
+    owner: String!
+
+    # Measured in TGEN.
+    price: BigInt!
+
+    timestamp: BigInt!
+}
+
+type User @entity {
+    # User's wallet address.
+    id: ID!
+
+    # Measured in TGEN.
+    totalCollectedFees: BigInt!
+    totalFeesPaid: BigInt!
+
+    indicatorsOwned: [Indicator]! @derivedFrom(field: "componentOwner")
+    comparatorsOwned: [Comparator]! @derivedFrom(field: "componentOwner")
+    indicatorInstancesOwned: [IndicatorInstance]! @derivedFrom(field: "instanceOwner")
+    comparatorInstancesOwned: [ComparatorInstance]! @derivedFrom(field: "instanceOwner")
+    tradingBotsOwned: [TradingBot]! @derivedFrom(field: "owner")
+    indicatorsDeveloped: [Indicator]! @derivedFrom(field: "developer")
+    comparatorsDeveloped: [Comparator]! @derivedFrom(field: "developer")
+    indicatorInstancesDeveloped: [IndicatorInstance]! @derivedFrom(field: "developer")
+    comparatorInstancesDeveloped: [ComparatorInstance]! @derivedFrom(field: "developer")
+    tradingBotsDeveloped: [TradingBot]! @derivedFrom(field: "developer")
+
+    purchasedIndicatorInstances: [IndicatorInstance]!
+    purchasedComparatorInstances: [ComparatorInstance]!
+}
+
+type TradingBot @entity {
+    # Trading bot contract address.
+    id: ID!
+
+    # Timestamp at which the trading bot was created.
+    createdOn: BigInt!
+
+    # User who currently owns the trading bot NFT.
+    owner: User!
+
+    # User who developed this trading bot.
+    # Initially the trading bot NFT owner.
+    developer: User!
+
+    # Address of user/contract that can update the trading bot's params.
+    operator: String!
+
+    # Address of the trading bot's dedicated keeper contract.
+    keeper: String!
+
+    # Address of the trading bot's data feed.
+    dataFeed: String!
+
+    name: String!
+    symbol: String!
+
+    # Timeframe (in minutes) of the trading bot.
+    # Keeps track of how frequently the trading bot is expected to be updated.
+    tradingBotTimeframe: BigInt!
+
+    maxTradeDuration: BigInt!
+
+    # Denominated in 10000.
+    profitTarget: BigInt!
+    stopLoss: BigInt!
+
+    # Asset symbol.
+    # Ex) BTC.
+    tradedAsset: String!
+
+    # Timeframe (in minutes) of the asset's data feed.
+    assetTimeframe: BigInt!
+
+    # Measured in TGEN.
+    # Fee that developers pay whenever they request data from the trading bot's data feed.
+    usageFee: BigInt!
+
+    entryRules: [ComparatorInstance!]!
+    exitRules: [ComparatorInstance]!
+}
+
+# Data accumulated and condensed into day stats for ComponentsRegistry.
+type ComponentsRegistryDayData @entity {
+  # Timestamp rounded to current day by dividing by 86400.
+  id: ID! 
+  date: Int!
+
+  dailyCombinedVolume: BigInt!
+  dailyIndicatorVolume: BigInt!
+  dailyComparatorVolume: BigInt!
+  dailyIndicatorInstanceVolume: BigInt!
+  dailyComparatorInstanceVolume: BigInt!
+  totalCombinedVolume: BigInt!
+  totalIndicatorVolume: BigInt!
+  totalComparatorVolume: BigInt!
+  totalIndicatorInstanceVolume: BigInt!
+  totalComparatorInstanceVolume: BigInt!
+
+  dailyIndicatorSales: Int!
+  dailyComparatorSales: Int!
+  dailyIndicatorInstanceSales: Int!
+  dailyComparatorInstanceSales: Int!
+
+  txCount: BigInt!
+}
+
+# Data accumulated and condensed into day stats for TradingBotRegistry.
+type TradingBotRegistryDayData @entity {
+  # Timestamp rounded to current day by dividing by 86400.
+  id: ID! 
+  date: Int!
+
+  dailyCollectedFees: BigInt!
+  totalCollectedFees: BigInt!
+
+  dailyMintedTradingBotNFTs: Int!
+  dailyPublishedTradingBots: Int!
+}
+
+type ComponentInstancesLookup @entity {
+    # ComponentInstances contract address.
+    id: ID!
+
+    indicatorInstance: IndicatorInstance
+    comparatorInstance: ComparatorInstance
+}
