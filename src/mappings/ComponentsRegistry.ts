@@ -323,4 +323,11 @@ export function handlePublishedComponent(event: PublishedComponent): void {
     user.purchasedIndicatorInstances = [];
     user.save();
   }
+
+  let lookup = new ComponentInstancesLookup(event.params.instancesAddress.toHexString());
+  lookup.componentID = event.params.componentID;
+  lookup.save();
+
+  // Create the tracked contract based on the template.
+  ComponentInstancesTemplate.create(event.params.instancesAddress);
 }

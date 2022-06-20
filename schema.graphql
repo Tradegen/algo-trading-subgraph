@@ -318,6 +318,5 @@ type ComponentInstancesLookup @entity {
     # ComponentInstances contract address.
     id: ID!
 
-    indicatorInstance: IndicatorInstance
-    comparatorInstance: ComparatorInstance
+    componentID: BigInt!
 }
