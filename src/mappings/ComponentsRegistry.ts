@@ -1,3 +1,4 @@
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
  MarkedComponentInstanceAsDefault,
  UpdatedComponentInstancePrice,
@@ -197,7 +198,7 @@ export function handleCreatedIndicatorInstance(event: CreatedIndicatorInstance):
   indicatorInstance.asset = event.params.asset;
   indicatorInstance.assetTimeframe = event.params.assetTimeframe;
   indicatorInstance.indicatorTimeframe = event.params.indicatorTimeframe;
-  indicatorInstance.params = event.params.params;
+  indicatorInstance.params = event.params.params.toString();
   indicatorInstance.collectedFees = ZERO_BI;
   indicatorInstance.save();
 
@@ -280,6 +281,7 @@ export function handlePublishedComponent(event: PublishedComponent): void {
     componentsRegistry.totalVolume = ZERO_BI;
     componentsRegistry.indicatorVolume = ZERO_BI;
     componentsRegistry.comparatorVolume = ZERO_BI;
+    componentsRegistry.indicatorInstanceVolume = ZERO_BI;
     componentsRegistry.comparatorInstanceVolume = ZERO_BI;
   }
 

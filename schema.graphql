@@ -60,9 +60,6 @@ type Comparator @entity {
     # Component ID in ComponentsRegistry.
     id: ID!
 
-    # Fetched from contract.
-    name: String!
-
     # Timestamp at which the comparator was created.
     publishedOn: BigInt!
 
@@ -126,7 +123,7 @@ type IndicatorInstance @entity {
 
     # Optional params.
     # Ex) The EMA indicator might have [20] as params to define 20-period moving average.
-    params: [BigInt]!
+    params: String!
 
     # Measured in TGEN.
     collectedFees: BigInt!

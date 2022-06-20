@@ -69,22 +69,22 @@ export function handleSetRulesForTradingBot(event: SetRulesForTradingBot): void 
     let entryRuleInstances = event.params.entryRuleInstances;
     let exitRuleComponents = event.params.exitRuleComponents;
     let exitRuleInstances = event.params.exitRuleInstances;
-    let entryRules: ComparatorInstance[] = [];
-    let exitRules: ComparatorInstance[] = [];
+    let entryRules: string[] = [];
+    let exitRules: string[] = [];
 
     for (var i = 0; i < entryRuleComponents.length; i++) {
-        let IDString: string = entryRuleComponents[i].toI32().toString() + "-" + entryRuleInstances[i].toI32().toString();
+        let IDString: string = entryRuleComponents[i].toString() + "-" + entryRuleInstances[i].toString();
         let comparatorInstance = ComparatorInstance.load(IDString);
         if (comparatorInstance !== null) {
-            entryRules.push(comparatorInstance);
+            entryRules.push(comparatorInstance.id);
         }
     }
 
-    for (var i = 0; i < exitRuleComponents.length; i++) {
-        let IDString: string = exitRuleComponents[i].toI32().toString() + "-" + exitRuleInstances[i].toI32().toString();
+    for (var j = 0; i < exitRuleComponents.length; j++) {
+        let IDString: string = exitRuleComponents[j].toString() + "-" + exitRuleInstances[j].toString();
         let comparatorInstance = ComparatorInstance.load(IDString);
         if (comparatorInstance !== null) {
-            exitRules.push(comparatorInstance);
+            exitRules.push(comparatorInstance.id);
         }
     }
 
