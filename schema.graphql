@@ -7,10 +7,8 @@ type ComponentsRegistry @entity {
     indicatorCount: Int!
     comparatorInstanceCount: Int!
     indicatorInstanceCount: Int!
-    numberOfIndicatorSales: Int!
-    numberOfComparatorSales: Int!
-    numberOfIndicatorInstanceSales: Int!
-    numberOfComparatorInstanceSales: Int!
+    numberOfIndicatorInstancePurchases: Int!
+    numberOfComparatorInstancePurchases: Int!
 
     # Measured in TGEN.
     totalVolume: BigInt!
@@ -34,9 +32,6 @@ type TradingBotRegistry @entity {
 type Indicator @entity {
     # Component ID in ComponentsRegistry.
     id: ID!
-
-    # Fetched from contract.
-    name: String!
 
     # Timestamp at which the indicator was created.
     publishedOn: BigInt!
@@ -298,12 +293,12 @@ type ComponentsRegistryDayData @entity {
   totalIndicatorInstanceVolume: BigInt!
   totalComparatorInstanceVolume: BigInt!
 
-  dailyIndicatorSales: Int!
-  dailyComparatorSales: Int!
-  dailyIndicatorInstanceSales: Int!
-  dailyComparatorInstanceSales: Int!
+  dailyIndicatorInstancesCreated: Int!
+  dailyComparatorInstancesCreated: Int!
+  dailyIndicatorInstancesPurchased: Int!
+  dailyComparatorInstancesPurchased: Int!
 
-  txCount: BigInt!
+  txCount: Int!
 }
 
 # Data accumulated and condensed into day stats for TradingBotRegistry.

@@ -30,10 +30,11 @@ export function updateComponentsRegistryDayData(event: ethereum.Event): Componen
     componentsRegistryDayData.totalComparatorVolume = ZERO_BI;
     componentsRegistryDayData.totalIndicatorInstanceVolume = ZERO_BI;
     componentsRegistryDayData.totalComparatorInstanceVolume = ZERO_BI;
-    componentsRegistryDayData.dailyIndicatorSales = 0;
-    componentsRegistryDayData.dailyComparatorSales = 0;
-    componentsRegistryDayData.dailyIndicatorInstanceSales = 0;
-    componentsRegistryDayData.dailyComparatorInstanceSales = 0;
+    componentsRegistryDayData.dailyIndicatorInstancesCreated = 0;
+    componentsRegistryDayData.dailyComparatorInstancesCreated = 0;
+    componentsRegistryDayData.dailyIndicatorInstancesPurchased = 0;
+    componentsRegistryDayData.dailyComparatorInstancesPurchased = 0;
+    componentsRegistryDayData.txCount = 0;
   }
 
   componentsRegistryDayData.totalCombinedVolume = componentsRegistry.totalVolume;

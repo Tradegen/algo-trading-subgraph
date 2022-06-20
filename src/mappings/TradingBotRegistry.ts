@@ -33,9 +33,12 @@ export function handleMintedTradingBot(event: MintedTradingBot): void {
 
     let tradingBotRegistryDayData = updateTradingBotRegistryDayData(event);
     tradingBotRegistryDayData.dailyCollectedFees = tradingBotRegistryDayData.dailyCollectedFees.plus(event.params.mintFeePaid);
-    tradingBotRegistryDayData.totalCollectedFees = tradingBotRegistryDayData.totalCollectedFees.plus(event.params.mintFeePaid);
     tradingBotRegistryDayData.dailyMintedTradingBotNFTs = tradingBotRegistryDayData.dailyMintedTradingBotNFTs + 1;
     tradingBotRegistryDayData.save();
+
+    let user = User.load(tradingBot.owner);
+    user.totalFeesPaid = user.totalFeesPaid.plus(event.params.mintFeePaid);
+    user.save();
 }
 
 export function handlePublishedTradingBot(event: PublishedTradingBot): void {
@@ -140,4 +143,12 @@ export function handleStagedTradingBot(event: StagedTradingBot): void {
     tradingBot.entryRules = []; // Placeholder.
     tradingBot.exitRules = []; // Placeholder.
     tradingBot.save();
+
+    let user = User.load(event.params.owner.toHexString());
+    if (user === null) {
+        user = new User(event.params.owner.toHexString());
+        user.totalCollectedFees = ZERO_BI;
+        user.totalFeesPaid = ZERO_BI;
+        user.save();
+    }
 }
