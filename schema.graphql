@@ -2,15 +2,20 @@ type ComponentsRegistry @entity {
     # ComponentsRegistry contract address.
     id: ID!
 
+    # Total number of transactions across indicators, comparators, and instances.
     txCount: Int!
+
+    # Tracks number of indicators, comparators, and instances in existence.
     comparatorCount: Int!
     indicatorCount: Int!
     comparatorInstanceCount: Int!
     indicatorInstanceCount: Int!
+
+    # Tracks instance purchases.
     numberOfIndicatorInstancePurchases: Int!
     numberOfComparatorInstancePurchases: Int!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     totalVolume: BigInt!
     indicatorVolume: BigInt!
     comparatorVolume: BigInt!
@@ -22,10 +27,15 @@ type TradingBotRegistry @entity {
     # TradingBotRegistry contract address.
     id: ID!
 
+    # Number of minted NFTs.
+    # Not all trading bots are published to the platform.
     numberOfTradingBotNFTs: Int!
+
+    # Number of trading bots published to the platform.
+    # Prospective trading bots are reviewed manually before being published to the platform.
     numberOfPublishedTradingBots: Int!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     collectedFees: BigInt!   
 }
 
@@ -49,10 +59,11 @@ type Indicator @entity {
     # User who currently owns the indicator NFT.
     componentOwner: User!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     fee: BigInt!
     collectedFees: BigInt!
 
+    # Instances associated with this indicator.
     instances: [IndicatorInstance]! @derivedFrom(field: "indicator")
 }
 
@@ -76,10 +87,11 @@ type Comparator @entity {
     # User who currently owns the comparator NFT.
     componentOwner: User!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     fee: BigInt!
     collectedFees: BigInt!
 
+    # Instances associated with this comparator.
     instances: [ComparatorInstance]! @derivedFrom(field: "comparator")
 }
 
@@ -93,14 +105,18 @@ type IndicatorInstance @entity {
     # ID in the indicator's ComponentInstances contract.
     instanceID: BigInt!
 
+    # ID of the parent Indicator in the Components contract.
     componentID: BigInt!
 
+    # Reference to the parent Indicator.
     indicator: Indicator!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     # Price user pays for integrating this indicator instance in a comparator instance.
     price: BigInt!
 
+    # Whether this indicator instance is a default instance.
+    # If true, users don't have to pay a fee to integrate this instance.
     isDefault: Boolean!
 
     # User who currently owns the indicator instance NFT.
@@ -125,7 +141,7 @@ type IndicatorInstance @entity {
     # Ex) The EMA indicator might have [20] as params to define 20-period moving average.
     params: String!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     collectedFees: BigInt!
 
     # Comparator instances that use this indicator instance.
@@ -143,17 +159,22 @@ type ComparatorInstance @entity {
     # ID in the comparator's ComponentInstances contract.
     instanceID: BigInt!
 
+    # ID of the parent Comparator in the Components contract.
     componentID: BigInt!
 
+    # Reference to the parent Comparator entity.
     comparator: Comparator!
 
+    # Reference to the two Indicator entities.
     indicator1: IndicatorInstance!
     indicator2: IndicatorInstance!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     # Price user pays for integrating this comparator instance in in a trading bot.
     price: BigInt!
 
+    # Whether this comparator instance is a default instance.
+    # If true, users don't have to pay a fee to integrate this instance.
     isDefault: Boolean!
 
     # User who currently owns the comparator instance NFT.
@@ -168,7 +189,7 @@ type ComparatorInstance @entity {
     # Fetched from contract.
     comparatorTimeframe: BigInt!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     collectedFees: BigInt!
 }
 
@@ -176,15 +197,22 @@ type PurchaseComponentInstance @entity {
     # Transaction hash.
     id: ID!
 
+    # ID of the parent Indicator/Comparator in the Components contract.
     componentID: BigInt!
+
+    # ID in the indicator's/comparator's ComponentInstances contract.
     instanceID: BigInt!
 
+    # Address of the buyer.
     buyer: String!
+
+    # Address of the indicator/comparator instance owner.
     owner: String!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     price: BigInt!
 
+    # Timestamp at which the transaction occurred.
     timestamp: BigInt!
 }
 
@@ -192,10 +220,11 @@ type User @entity {
     # User's wallet address.
     id: ID!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     totalCollectedFees: BigInt!
     totalFeesPaid: BigInt!
 
+    # Tracks entities owned/developed by this user.
     indicatorsOwned: [Indicator]! @derivedFrom(field: "componentOwner")
     comparatorsOwned: [Comparator]! @derivedFrom(field: "componentOwner")
     indicatorInstancesOwned: [IndicatorInstance]! @derivedFrom(field: "instanceOwner")
@@ -207,6 +236,7 @@ type User @entity {
     comparatorInstancesDeveloped: [ComparatorInstance]! @derivedFrom(field: "developer")
     tradingBotsDeveloped: [TradingBot]! @derivedFrom(field: "developer")
 
+    # Tracks indicator/comparator instances that this user has purchased.
     purchasedIndicatorInstances: [IndicatorInstance]!
     purchasedComparatorInstances: [ComparatorInstance]!
 }
@@ -245,13 +275,17 @@ type TradingBot @entity {
     # Address of the trading bot's data feed.
     dataFeed: String!
 
+    # Name of the trading bot.
     name: String!
+
+    # Symbol of the trading bot.
     symbol: String!
 
     # Timeframe (in minutes) of the trading bot.
     # Keeps track of how frequently the trading bot is expected to be updated.
     tradingBotTimeframe: BigInt!
 
+    # Maximum multiple of the timeframe before a trade is exited automatically.
     maxTradeDuration: BigInt!
 
     # Denominated in 10000.
@@ -265,50 +299,57 @@ type TradingBot @entity {
     # Timeframe (in minutes) of the asset's data feed.
     assetTimeframe: BigInt!
 
-    # Measured in TGEN.
+    # Measured in the protocol's governance token.
     # Fee that developers pay whenever they request data from the trading bot's data feed.
     usageFee: BigInt!
 
+    # Associated ComparatorInstances used for entry criteria.
     entryRules: [ComparatorInstance]!
+
+    # Associated ComparatorInstances used for exit criteria.
     exitRules: [ComparatorInstance]!
 }
 
 # Data accumulated and condensed into day stats for ComponentsRegistry.
 type ComponentsRegistryDayData @entity {
-  # Timestamp rounded to current day by dividing by 86400.
-  id: ID! 
-  date: Int!
+    # Timestamp rounded to current day by dividing by 86400.
+    id: ID! 
+    date: Int!
 
-  dailyCombinedVolume: BigInt!
-  dailyIndicatorVolume: BigInt!
-  dailyComparatorVolume: BigInt!
-  dailyIndicatorInstanceVolume: BigInt!
-  dailyComparatorInstanceVolume: BigInt!
-  totalCombinedVolume: BigInt!
-  totalIndicatorVolume: BigInt!
-  totalComparatorVolume: BigInt!
-  totalIndicatorInstanceVolume: BigInt!
-  totalComparatorInstanceVolume: BigInt!
+    # Tracks volume across entites.
+    dailyCombinedVolume: BigInt!
+    dailyIndicatorVolume: BigInt!
+    dailyComparatorVolume: BigInt!
+    dailyIndicatorInstanceVolume: BigInt!
+    dailyComparatorInstanceVolume: BigInt!
+    totalCombinedVolume: BigInt!
+    totalIndicatorVolume: BigInt!
+    totalComparatorVolume: BigInt!
+    totalIndicatorInstanceVolume: BigInt!
+    totalComparatorInstanceVolume: BigInt!
 
-  dailyIndicatorInstancesCreated: Int!
-  dailyComparatorInstancesCreated: Int!
-  dailyIndicatorInstancesPurchased: Int!
-  dailyComparatorInstancesPurchased: Int!
+    # Tracks creations/purchases of indicator/comparator instances.
+    dailyIndicatorInstancesCreated: Int!
+    dailyComparatorInstancesCreated: Int!
+    dailyIndicatorInstancesPurchased: Int!
+    dailyComparatorInstancesPurchased: Int!
 
-  txCount: Int!
+    # Number of transactions for this day.
+    txCount: Int!
 }
 
 # Data accumulated and condensed into day stats for TradingBotRegistry.
 type TradingBotRegistryDayData @entity {
-  # Timestamp rounded to current day by dividing by 86400.
-  id: ID! 
-  date: Int!
+    # Timestamp rounded to current day by dividing by 86400.
+    id: ID! 
+    date: Int!
 
-  dailyCollectedFees: BigInt!
-  totalCollectedFees: BigInt!
+    # Measured in the protocol's governance token.
+    dailyCollectedFees: BigInt!
+    totalCollectedFees: BigInt!
 
-  dailyMintedTradingBotNFTs: Int!
-  dailyPublishedTradingBots: Int!
+    dailyMintedTradingBotNFTs: Int!
+    dailyPublishedTradingBots: Int!
 }
 
 type ComponentInstancesLookup @entity {
